@@ -15,16 +15,14 @@ class CustomCard extends StatelessWidget {
     return Column(
       children: [
         InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => IndividualScreen(
-                  chatModel: chatModel,
-                ),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (builder) => IndividualScreen(
+                chatModel: chatModel,
               ),
-            );
-          },
+            ),
+          ),
           child: ListTile(
             leading: CircleAvatar(
               radius: 30,

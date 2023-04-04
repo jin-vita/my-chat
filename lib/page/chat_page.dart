@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_chat/model/chat_model.dart';
+import 'package:my_chat/screen/select_screen.dart';
 import 'package:my_chat/ui/custom_card.dart';
 
 class ChatPage extends StatefulWidget {
@@ -28,7 +29,7 @@ class _ChatPageState extends State<ChatPage> {
     ChatModel(
       isGroup: true,
       icon: 'groups.svg',
-      name: 'UNS',
+      name: 'PANG ',
       time: '13:26',
       currentMessage: 'This is our project.',
     ),
@@ -51,8 +52,13 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: const FloatingActionButton(
-        onPressed: null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (builder) => const SelectScreen(),
+          ),
+        ),
         child: Icon(Icons.chat),
       ),
       body: ListView.builder(

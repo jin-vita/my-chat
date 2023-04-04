@@ -15,18 +15,33 @@ class IndividualScreen extends StatefulWidget {
   State<IndividualScreen> createState() => _IndividualScreenState();
 }
 
-class _IndividualScreenState extends State<IndividualScreen> {
+class _IndividualScreenState extends State<IndividualScreen> with TickerProviderStateMixin {
   bool _isShow = false;
   final FocusNode _focusNode = FocusNode();
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+  late final AnimationController _animationController;
+  final Tween<double> _heightTween = Tween(
+    begin: 0,
+    end: 275,
+  );
+  late final Animation<double> _heightAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _heightAnimation = _heightTween.animate(_animationController);
+    _heightAnimation.addListener(
+      () => setState(() {}),
+    );
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         setState(() {
           _isShow = false;
+          _animationController.reverse();
         });
       }
     });
@@ -43,46 +58,64 @@ class _IndividualScreenState extends State<IndividualScreen> {
 
   AppBar _appBar(BuildContext context) {
     return AppBar(
-      leadingWidth: 80,
-      leading: GestureDetector(
-        onTap: () => Navigator.pop(context),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            const Icon(Icons.arrow_back),
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.blueGrey,
-              child: SvgPicture.asset(
-                'assets/icons/${widget.chatModel.icon}',
-                colorFilter: const ColorFilter.mode(
-                  Colors.white,
-                  BlendMode.srcIn,
-                ),
-                height: 35,
-                width: 35,
-              ),
-            ),
-            const SizedBox(width: 10),
-          ],
-        ),
-      ),
+      // leadingWidth: 80,
+      // leading: GestureDetector(
+      //   onTap: () => Navigator.pop(context),
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      //     children: [
+      //       const Icon(Icons.arrow_back),
+      //       CircleAvatar(
+      //         radius: 20,
+      //         backgroundColor: Colors.blueGrey,
+      //         child: SvgPicture.asset(
+      //           'assets/icons/${widget.chatModel.icon}',
+      //           colorFilter: const ColorFilter.mode(
+      //             Colors.white,
+      //             BlendMode.srcIn,
+      //           ),
+      //           height: 35,
+      //           width: 35,
+      //         ),
+      //       ),
+      //       const SizedBox(width: 10),
+      //     ],
+      //   ),
+      // ),
       titleSpacing: 0,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      title: Row(
         children: [
-          Text(
-            widget.chatModel.name,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: Colors.blueGrey,
+            child: SvgPicture.asset(
+              'assets/icons/${widget.chatModel.icon}',
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+              height: 35,
+              width: 35,
             ),
           ),
-          const Text(
-            'last seen today at 12:05',
-            style: TextStyle(
-              fontSize: 13,
-            ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.chatModel.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Text(
+                'last seen today at 12:05',
+                style: TextStyle(
+                  fontSize: 13,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -114,12 +147,14 @@ class _IndividualScreenState extends State<IndividualScreen> {
             // ListView(),
             Align(
               alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  typingBar(context),
-                  emojiSelect(),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    typingBar(context),
+                    emojiSelect(),
+                  ],
+                ),
               ),
             ),
           ],
@@ -132,6 +167,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
     if (_isShow) {
       setState(() {
         _isShow = false;
+        _animationController.reverse();
       });
     } else {
       Navigator.pop(context);
@@ -163,13 +199,20 @@ class _IndividualScreenState extends State<IndividualScreen> {
                 border: InputBorder.none,
                 hintText: 'Type a message',
                 prefixIcon: IconButton(
-                  icon: const Icon(Icons.emoji_emotions),
-                  onPressed: () => setState(() {
-                    _focusNode.unfocus();
-                    _focusNode.canRequestFocus = false;
-                    _isShow = !_isShow;
-                  }),
-                ),
+                    icon: const Icon(Icons.emoji_emotions),
+                    onPressed: () async {
+                      setState(() {
+                        _focusNode.unfocus();
+                        _focusNode.canRequestFocus = false;
+                      });
+                      await Future.delayed(
+                        const Duration(milliseconds: 100),
+                        () => setState(() {
+                          _isShow = !_isShow;
+                          _isShow ? _animationController.forward() : _animationController.reverse();
+                        }),
+                      );
+                    }),
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -293,15 +336,13 @@ class _IndividualScreenState extends State<IndividualScreen> {
   }
 
   emojiSelect() {
-    return _isShow
-        ? SizedBox(
-            height: 275,
-            child: EmojiPicker(
-              onEmojiSelected: (category, emoji) => setState(() {
-                _controller.text += emoji.emoji;
-              }),
-            ),
-          )
-        : const SizedBox();
+    return SizedBox(
+      height: _heightAnimation.value,
+      child: EmojiPicker(
+        onEmojiSelected: (category, emoji) => setState(() {
+          _controller.text += emoji.emoji;
+        }),
+      ),
+    );
   }
 }
