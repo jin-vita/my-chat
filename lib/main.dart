@@ -15,10 +15,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         fontFamily: 'OpenSans',
-        primaryColor: const Color(0xFF075E54),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          secondary: const Color(0xFF128C7E),
-        ),
       ),
       home: const HomeScreen(),
     );

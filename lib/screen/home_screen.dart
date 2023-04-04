@@ -82,10 +82,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       body: TabBarView(
         controller: _controller,
         children: const [
-          Text('camera'),
+          Center(child: Text('camera')),
           ChatPage(),
-          Text('status'),
-          Text('calls'),
+          Center(child: Text('status')),
+          Center(child: Text('calls')),
         ],
       ),
     );

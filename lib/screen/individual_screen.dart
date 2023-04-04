@@ -18,6 +18,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blueGrey,
       appBar: AppBar(
         leadingWidth: 80,
         leading: GestureDetector(
@@ -62,7 +63,174 @@ class _IndividualScreenState extends State<IndividualScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.videocam,
+            ),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.call,
+            ),
+          ),
+        ],
       ),
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Stack(
+          children: [
+            // ListView(),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width - 55,
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: TextFormField(
+                        textAlignVertical: TextAlignVertical.center,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 5,
+                        minLines: 1,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Type a message',
+                          prefixIcon: IconButton(
+                            icon: const Icon(Icons.emoji_emotions),
+                            onPressed: () {},
+                          ),
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    builder: (builder) => bottomSheet(),
+                                  );
+                                },
+                                icon: const Icon(Icons.attach_file),
+                              ),
+                              IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.camera_alt),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  CircleAvatar(
+                    radius: 25,
+                    child: IconButton(
+                      icon: const Icon(Icons.mic),
+                      onPressed: () {},
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bottomSheet() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+      ),
+      height: 280,
+      width: MediaQuery.of(context).size.width,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+        margin: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                iconCreation(
+                  text: 'Document',
+                  icon: Icons.insert_drive_file,
+                ),
+                iconCreation(
+                  text: 'Camera',
+                  icon: Icons.camera_alt,
+                  color: Colors.pink,
+                ),
+                iconCreation(
+                  text: 'Gallery',
+                  icon: Icons.insert_photo,
+                  color: Colors.purple,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                iconCreation(
+                  text: 'Audio',
+                  icon: Icons.headset,
+                  color: Colors.orange,
+                ),
+                iconCreation(
+                  text: 'location',
+                  icon: Icons.location_pin,
+                  color: Colors.lightGreen,
+                ),
+                iconCreation(
+                  text: 'Contact',
+                  icon: Icons.person,
+                  color: Colors.blue,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  iconCreation({
+    required String text,
+    required IconData icon,
+    Color color = Colors.indigo,
+  }) {
+    return Column(
+      children: [
+        CircleAvatar(
+          backgroundColor: color,
+          radius: 30,
+          child: Icon(
+            icon,
+            size: 30,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
     );
   }
 }
