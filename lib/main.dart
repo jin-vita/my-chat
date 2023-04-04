@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_chat/screen/home_screen.dart';
 
 // flutter pub add flutter_svg
+// flutter pub add shared_preferences
+// flutter pub add emoji_picker_flutter
 void main() {
   runApp(const MyApp());
 }
