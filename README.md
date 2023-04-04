@@ -1,6 +1,8 @@
 # my_chat
 
-A new Flutter project.
+A new Flutter chat UI project.
+
+![screen](https://user-images.githubusercontent.com/75659806/229714266-090887e5-529c-4315-9dc6-f82c496ecb32.jpg)
 
 ## Getting Started
 
