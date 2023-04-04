@@ -212,25 +212,28 @@ class _IndividualScreenState extends State<IndividualScreen> {
   iconCreation({
     required String text,
     required IconData icon,
-    Color color = Colors.indigo,
+    Color color = Colors.teal,
   }) {
-    return Column(
-      children: [
-        CircleAvatar(
-          backgroundColor: color,
-          radius: 30,
-          child: Icon(
-            icon,
-            size: 30,
-            color: Colors.white,
+    return InkWell(
+      onTap: () {},
+      child: Column(
+        children: [
+          CircleAvatar(
+            backgroundColor: color,
+            radius: 30,
+            child: Icon(
+              icon,
+              size: 30,
+              color: Colors.white,
+            ),
           ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 12),
-        ),
-      ],
+          const SizedBox(height: 5),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }
