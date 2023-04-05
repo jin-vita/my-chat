@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:my_chat/dummy/contacts_dummy.dart';
+import 'package:my_chat/screen/group_screen.dart';
+import 'package:my_chat/ui/button_card.dart';
+import 'package:my_chat/ui/contact_card.dart';
 
-class SelectScreen extends StatefulWidget {
+class SelectScreen extends StatelessWidget {
   const SelectScreen({Key? key}) : super(key: key);
 
-  @override
-  State<SelectScreen> createState() => _SelectScreenState();
-}
-
-class _SelectScreenState extends State<SelectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,8 +20,8 @@ class _SelectScreenState extends State<SelectScreen> {
       titleSpacing: 0,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
+        children: [
+          const Text(
             'Select contact',
             style: TextStyle(
               fontSize: 19,
@@ -30,8 +29,8 @@ class _SelectScreenState extends State<SelectScreen> {
             ),
           ),
           Text(
-            '256 contacts',
-            style: TextStyle(
+            '${contacts.length} contacts',
+            style: const TextStyle(
               fontSize: 13,
             ),
           ),
@@ -50,6 +49,31 @@ class _SelectScreenState extends State<SelectScreen> {
   }
 
   _body() {
-    return Container();
+    return ListView.builder(
+      itemCount: contacts.length + 2,
+      itemBuilder: (context, index) {
+        return index == 0
+            ? InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (builder) => const GroupScreen(),
+                  ),
+                ),
+                child: const ButtonCard(
+                  name: 'New Group',
+                  icon: Icons.group,
+                ),
+              )
+            : index == 1
+                ? const ButtonCard(
+                    name: 'New Contact',
+                    icon: Icons.person_add,
+                  )
+                : ContactCard(
+                    contact: contacts[index - 2],
+                  );
+      },
+    );
   }
 }

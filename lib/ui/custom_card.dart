@@ -8,6 +8,7 @@ class CustomCard extends StatelessWidget {
     Key? key,
     required this.chatModel,
   }) : super(key: key);
+
   final ChatModel chatModel;
 
   @override
@@ -51,7 +52,7 @@ class CustomCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 5),
                 Text(
-                  chatModel.currentMessage,
+                  '${chatModel.currentMessage}',
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -59,7 +60,7 @@ class CustomCard extends StatelessWidget {
                 ),
               ],
             ),
-            trailing: Text(chatModel.time),
+            trailing: Text('${chatModel.time}'),
           ),
         ),
         const Padding(

@@ -16,36 +16,7 @@ class IndividualScreen extends StatefulWidget {
 }
 
 class _IndividualScreenState extends State<IndividualScreen> with TickerProviderStateMixin {
-  bool _isShow = false;
-  final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
-  late final AnimationController _animationController;
-  final Tween<double> _heightTween = Tween(
-    begin: 0,
-    end: 275,
-  );
-  late final Animation<double> _heightAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _heightAnimation = _heightTween.animate(_animationController);
-    _heightAnimation.addListener(
-      () => setState(() {}),
-    );
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus) {
-        setState(() {
-          _isShow = false;
-          _animationController.reverse();
-        });
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,113 +112,91 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: WillPopScope(
-        onWillPop: () => backAction(context),
+        onWillPop: () => _backAction(context),
         child: Stack(
           children: [
             // ListView(),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    typingBar(context),
-                    emojiSelect(),
-                  ],
-                ),
-              ),
-            ),
+            _typingBar(context),
           ],
         ),
       ),
     );
   }
 
-  Future<bool> backAction(BuildContext context) {
-    if (_isShow) {
-      setState(() {
-        _isShow = false;
-        _animationController.reverse();
-      });
-    } else {
-      Navigator.pop(context);
-    }
+  Future<bool> _backAction(BuildContext context) {
+    Navigator.pop(context);
     return Future(() => false);
   }
 
-  Row typingBar(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width - 55,
-          child: Card(
-            margin: const EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 5,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
-            ),
-            child: TextFormField(
-              controller: _controller,
-              focusNode: _focusNode,
-              textAlignVertical: TextAlignVertical.center,
-              keyboardType: TextInputType.multiline,
-              maxLines: 5,
-              minLines: 1,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Type a message',
-                prefixIcon: IconButton(
-                    icon: const Icon(Icons.emoji_emotions),
-                    onPressed: () async {
-                      setState(() {
-                        _focusNode.unfocus();
-                        _focusNode.canRequestFocus = false;
-                      });
-                      await Future.delayed(
-                        const Duration(milliseconds: 100),
-                        () => setState(() {
-                          _isShow = !_isShow;
-                          _isShow ? _animationController.forward() : _animationController.reverse();
-                        }),
-                      );
-                    }),
-                suffixIcon: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
+  _typingBar(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Row(
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width - 55,
+            child: Card(
+              margin: const EdgeInsets.symmetric(
+                vertical: 10,
+                horizontal: 5,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: TextFormField(
+                controller: _controller,
+                textAlignVertical: TextAlignVertical.center,
+                keyboardType: TextInputType.multiline,
+                maxLines: 5,
+                minLines: 1,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Type a message',
+                  prefixIcon: IconButton(
+                      icon: const Icon(Icons.emoji_emotions),
                       onPressed: () {
                         showModalBottomSheet(
-                          backgroundColor: Colors.transparent,
                           context: context,
-                          builder: (builder) => bottomSheet(),
+                          barrierColor: Colors.transparent,
+                          builder: (builder) => _emojiSelect(),
                         );
-                      },
-                      icon: const Icon(Icons.attach_file),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.camera_alt),
-                    ),
-                  ],
+                      }),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            context: context,
+                            builder: (builder) => _bottomSheet(),
+                          );
+                        },
+                        icon: const Icon(Icons.attach_file),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.camera_alt),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        CircleAvatar(
-          radius: 25,
-          child: IconButton(
-            icon: const Icon(Icons.mic),
-            onPressed: () {},
+          CircleAvatar(
+            radius: 25,
+            child: IconButton(
+              icon: const Icon(Icons.mic),
+              onPressed: () {},
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  bottomSheet() {
+  _bottomSheet() {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
@@ -335,13 +284,18 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     );
   }
 
-  emojiSelect() {
+  _emojiSelect() {
     return SizedBox(
-      height: _heightAnimation.value,
-      child: EmojiPicker(
-        onEmojiSelected: (category, emoji) => setState(() {
-          _controller.text += emoji.emoji;
-        }),
+      height: 280,
+      width: MediaQuery.of(context).size.width,
+      child: Card(
+        child: EmojiPicker(
+          onEmojiSelected: (category, emoji) => setState(
+            () {
+              _controller.text += emoji.emoji;
+            },
+          ),
+        ),
       ),
     );
   }
