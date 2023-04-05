@@ -49,31 +49,41 @@ class SelectScreen extends StatelessWidget {
   }
 
   _body() {
-    return ListView.builder(
-      itemCount: contacts.length + 2,
-      itemBuilder: (context, index) {
-        return index == 0
-            ? InkWell(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (builder) => const GroupScreen(),
-                  ),
-                ),
-                child: const ButtonCard(
-                  name: 'New Group',
-                  icon: Icons.group,
-                ),
-              )
-            : index == 1
-                ? const ButtonCard(
-                    name: 'New Contact',
-                    icon: Icons.person_add,
-                  )
-                : ContactCard(
-                    contact: contacts[index - 2],
-                  );
+    return WillPopScope(
+      onWillPop: () {
+        for (var item in contacts) {
+          item.selected = false;
+        }
+
+        groups.clear();
+        return Future(() => true);
       },
+      child: ListView.builder(
+        itemCount: contacts.length + 2,
+        itemBuilder: (context, index) {
+          return index == 0
+              ? InkWell(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (builder) => const GroupScreen(),
+                    ),
+                  ),
+                  child: const ButtonCard(
+                    name: 'New Group',
+                    icon: Icons.group,
+                  ),
+                )
+              : index == 1
+                  ? const ButtonCard(
+                      name: 'New Contact',
+                      icon: Icons.person_add,
+                    )
+                  : ContactCard(
+                      contact: contacts[index - 2],
+                    );
+        },
+      ),
     );
   }
 }

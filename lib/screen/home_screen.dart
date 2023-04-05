@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:my_chat/page/camera_page.dart';
 import 'package:my_chat/page/chat_page.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _controller = TabController(
       length: 4,
       vsync: this,
-      initialIndex: 0,
+      initialIndex: 1,
     );
   }
 
@@ -82,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       body: TabBarView(
         controller: _controller,
         children: const [
-          Center(child: Text('camera')),
+          CameraPage(),
           ChatPage(),
           Center(child: Text('status')),
           Center(child: Text('calls')),

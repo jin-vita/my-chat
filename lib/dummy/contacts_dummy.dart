@@ -1,5 +1,7 @@
 import 'package:my_chat/model/chat_model.dart';
 
+List<ChatModel> groups = [];
+
 List<ChatModel> contacts = [
   ChatModel(
     name: 'Jin',

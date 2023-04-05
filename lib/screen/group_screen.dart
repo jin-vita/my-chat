@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_chat/dummy/contacts_dummy.dart';
-import 'package:my_chat/model/chat_model.dart';
+import 'package:my_chat/ui/avtar_card.dart';
 import 'package:my_chat/ui/contact_card.dart';
 
 class GroupScreen extends StatefulWidget {
@@ -11,8 +11,6 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
-  List<ChatModel> groups = [];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,19 +53,64 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 
   _body() {
-    return ListView.builder(
-      itemCount: contacts.length,
-      itemBuilder: (context, index) => InkWell(
-        onTap: () {
-          setState(() {
-            contacts[index].selected ? groups.remove(contacts[index]) : groups.add(contacts[index]);
-            contacts[index].selected = !contacts[index].selected;
-          });
-        },
-        child: ContactCard(
-          contact: contacts[index],
+    return Stack(
+      children: [
+        ListView.builder(
+          itemCount: contacts.length + 1,
+          itemBuilder: (context, index) {
+            return index == 0
+                ? groups.isEmpty
+                    ? const SizedBox()
+                    : const SizedBox(height: 80)
+                : InkWell(
+                    onTap: () {
+                      setState(() {
+                        contacts[index - 1].selected
+                            ? groups.remove(contacts[index - 1])
+                            : groups.add(contacts[index - 1]);
+                        contacts[index - 1].selected = !contacts[index - 1].selected;
+                      });
+                    },
+                    child: ContactCard(
+                      contact: contacts[index - 1],
+                    ),
+                  );
+          },
         ),
-      ),
+        groups.isNotEmpty
+            ? Column(
+                children: [
+                  Container(
+                    height: 80,
+                    color: Colors.white,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: contacts.length,
+                      itemBuilder: (context, index) {
+                        return contacts[index].selected
+                            ? InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    groups.remove(contacts[index]);
+                                    contacts[index].selected = false;
+                                  });
+                                },
+                                child: AvtarCard(
+                                  contact: contacts[index],
+                                ),
+                              )
+                            : const SizedBox();
+                      },
+                    ),
+                  ),
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                  )
+                ],
+              )
+            : const SizedBox(),
+      ],
     );
   }
 }
