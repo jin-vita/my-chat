@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:my_chat/screen/video_screen.dart';
 import 'package:my_chat/screen/view_screen.dart';
 
 late List<CameraDescription> cameras;
@@ -16,6 +17,9 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
   late Future<void> cameraValue;
+  bool isRecording = false;
+  bool isFlash = false;
+  bool isFront = false;
 
   @override
   void initState() {
@@ -46,53 +50,107 @@ class _CameraScreenState extends State<CameraScreen> {
                       child: CircularProgressIndicator(),
                     ),
             ),
-            Positioned(
-              bottom: 0,
-              child: Container(
-                color: Colors.black,
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.flash_off,
-                            color: Colors.white,
-                            size: 28,
-                          ),
+            _bottomButtons(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _bottomButtons(BuildContext context) {
+    return Positioned(
+      bottom: 0,
+      child: Container(
+        color: Colors.black,
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          children: [
+            isRecording ? const SizedBox() : const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isFlash = !isFlash;
+                      isFlash
+                          ? _controller.setFlashMode(FlashMode.torch)
+                          : _controller.setFlashMode(FlashMode.off);
+                    });
+                  },
+                  icon: isFlash
+                      ? const Icon(
+                          Icons.flash_on,
+                          color: Colors.yellowAccent,
+                          size: 28,
+                        )
+                      : const Icon(
+                          Icons.flash_off,
+                          color: Colors.white,
+                          size: 28,
                         ),
-                        InkWell(
-                          onTap: () {
-                            _takePhoto(context);
-                          },
-                          child: const Icon(
-                            Icons.panorama_fish_eye,
-                            color: Colors.white,
-                            size: 70,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.flip_camera_ios,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Text(
-                      'Hold for video, tap for photo',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
                 ),
+                GestureDetector(
+                  onLongPress: () async {
+                    await _controller.startVideoRecording();
+                    setState(() {
+                      isRecording = true;
+                    });
+                  },
+                  onLongPressUp: () async {
+                    await _controller.stopVideoRecording().then((XFile file) {
+                      if (mounted) {
+                        log('Picture saved to ${file.path}');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (builder) => VideoScreen(
+                              path: file.path,
+                            ),
+                          ),
+                        );
+                      }
+                    });
+                    setState(() {
+                      isRecording = false;
+                    });
+                  },
+                  onTap: () => _takePhoto(context),
+                  child: isRecording
+                      ? const Icon(
+                          Icons.radio_button_on,
+                          color: Colors.red,
+                          size: 80,
+                        )
+                      : const Icon(
+                          Icons.panorama_fish_eye,
+                          color: Colors.white,
+                          size: 70,
+                        ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isFront = !isFront;
+                      if (isFront) {
+                        isFlash = false;
+                      }
+                    });
+                    _controller = CameraController(cameras[isFront ? 1 : 0], ResolutionPreset.high);
+                    cameraValue = _controller.initialize();
+                  },
+                  icon: const Icon(
+                    Icons.flip_camera_ios,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+              ],
+            ),
+            const Text(
+              'Hold for video, tap for photo',
+              style: TextStyle(
+                color: Colors.white,
               ),
             ),
           ],
@@ -102,6 +160,7 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   _takePhoto(BuildContext context) async {
+    if (isRecording) return;
     await _controller.takePicture().then(
       (XFile file) {
         if (mounted) {

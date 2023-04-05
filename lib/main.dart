@@ -5,6 +5,7 @@ import 'package:my_chat/screen/home_screen.dart';
 
 // flutter pub add camera
 // flutter pub add flutter_svg
+// flutter pub add video_player
 // flutter pub add shared_preferences
 // flutter pub add emoji_picker_flutter
 Future<void> main() async {
