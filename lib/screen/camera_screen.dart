@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +20,7 @@ class _CameraScreenState extends State<CameraScreen> {
   bool isRecording = false;
   bool isFlash = false;
   bool isFront = false;
+  double transform = 0;
 
   @override
   void initState() {
@@ -71,6 +72,7 @@ class _CameraScreenState extends State<CameraScreen> {
               children: [
                 IconButton(
                   onPressed: () {
+                    if (isFront) return;
                     setState(() {
                       isFlash = !isFlash;
                       isFlash
@@ -100,7 +102,6 @@ class _CameraScreenState extends State<CameraScreen> {
                   onLongPressUp: () async {
                     await _controller.stopVideoRecording().then((XFile file) {
                       if (mounted) {
-                        log('Picture saved to ${file.path}');
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -135,14 +136,18 @@ class _CameraScreenState extends State<CameraScreen> {
                       if (isFront) {
                         isFlash = false;
                       }
+                      transform = transform + pi;
                     });
                     _controller = CameraController(cameras[isFront ? 1 : 0], ResolutionPreset.high);
                     cameraValue = _controller.initialize();
                   },
-                  icon: const Icon(
-                    Icons.flip_camera_ios,
-                    color: Colors.white,
-                    size: 28,
+                  icon: Transform.rotate(
+                    angle: transform,
+                    child: const Icon(
+                      Icons.flip_camera_ios,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
                 ),
               ],
@@ -164,7 +169,6 @@ class _CameraScreenState extends State<CameraScreen> {
     await _controller.takePicture().then(
       (XFile file) {
         if (mounted) {
-          log('Picture saved to ${file.path}');
           Navigator.push(
             context,
             MaterialPageRoute(
