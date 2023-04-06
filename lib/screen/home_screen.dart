@@ -29,7 +29,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('myChat'),
+        backgroundColor: const Color(0xFF075E54),
+        title: const Text('My Chat'),
         actions: [
           IconButton(
             onPressed: () {},
@@ -63,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           }),
         ],
         bottom: TabBar(
+          indicatorColor: Colors.white,
           controller: _controller,
           tabs: const [
             Tab(

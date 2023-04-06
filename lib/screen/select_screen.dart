@@ -17,6 +17,7 @@ class SelectScreen extends StatelessWidget {
 
   _appBar() {
     return AppBar(
+      backgroundColor: const Color(0xFF075E54),
       titleSpacing: 0,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

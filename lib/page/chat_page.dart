@@ -10,6 +10,7 @@ class ChatPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF128C7E),
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(

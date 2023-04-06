@@ -2,6 +2,8 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_chat/model/chat_model.dart';
+import 'package:my_chat/ui/message_card.dart';
+import 'package:my_chat/ui/reply_card.dart';
 
 class IndividualScreen extends StatefulWidget {
   const IndividualScreen({
@@ -20,39 +22,23 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blueGrey,
-      appBar: _appBar(context),
-      body: _body(context),
-    );
+    return Stack(children: [
+      Image.asset(
+        'assets/images/chat_back.png',
+        height: MediaQuery.of(context).size.height,
+        fit: BoxFit.cover,
+      ),
+      Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: _appBar(context),
+        body: _body(context),
+      ),
+    ]);
   }
 
   AppBar _appBar(BuildContext context) {
     return AppBar(
-      // leadingWidth: 80,
-      // leading: GestureDetector(
-      //   onTap: () => Navigator.pop(context),
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      //     children: [
-      //       const Icon(Icons.arrow_back),
-      //       CircleAvatar(
-      //         radius: 20,
-      //         backgroundColor: Colors.blueGrey,
-      //         child: SvgPicture.asset(
-      //           'assets/icons/${widget.chatModel.icon}',
-      //           colorFilter: const ColorFilter.mode(
-      //             Colors.white,
-      //             BlendMode.srcIn,
-      //           ),
-      //           height: 35,
-      //           width: 35,
-      //         ),
-      //       ),
-      //       const SizedBox(width: 10),
-      //     ],
-      //   ),
-      // ),
+      backgroundColor: const Color(0xFF075E54),
       titleSpacing: 0,
       title: Row(
         children: [
@@ -115,7 +101,32 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
         onWillPop: () => _backAction(context),
         child: Stack(
           children: [
-            // ListView(),
+            ListView(
+              children: const [
+                MessageCard(
+                  time: '08:20',
+                  message: '좋은 아침!',
+                ),
+                ReplyCard(
+                  time: '09:47',
+                  message: '응ㅋㅋ 그래',
+                ),
+                MessageCard(
+                  time: '09:51',
+                  message: '오늘 기분은 어때? 밥은 먹었어? 뭐 먹었어?',
+                ),
+                ReplyCard(
+                  time: '12:08',
+                  message: '음.. 왜?',
+                ),
+                MessageCard(
+                  time: '12:11',
+                  message:
+                      '그냥 너가 잠을 푹 잘 잤는지,\n밥을 잘 먹었는지, 기분은 좋은지,\n오늘도 그 전에 연락준 3일 전처럼 크게 아픈 곳 없이 건강한지 궁금해서 ~',
+                  isRead: false,
+                ),
+              ],
+            ),
             _typingBar(context),
           ],
         ),
@@ -185,6 +196,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
             ),
           ),
           CircleAvatar(
+            backgroundColor: const Color(0xFF128C7E),
             radius: 25,
             child: IconButton(
               icon: const Icon(Icons.mic),
