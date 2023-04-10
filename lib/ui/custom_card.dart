@@ -37,20 +37,22 @@ class CustomCard extends StatelessWidget {
                 width: 40,
               ),
             ),
-            title: Text(
-              chatModel.name,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  chatModel.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text('${chatModel.time}'),
+              ],
             ),
             subtitle: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(
-                  Icons.done_all,
-                  color: Colors.black,
-                ),
-                const SizedBox(width: 5),
                 Text(
                   '${chatModel.currentMessage}',
                   style: const TextStyle(
@@ -58,9 +60,10 @@ class CustomCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const Text('1'),
               ],
             ),
-            trailing: Text('${chatModel.time}'),
+            // trailing: Text('${chatModel.time}'),
           ),
         ),
         const Padding(

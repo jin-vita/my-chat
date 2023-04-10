@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:my_chat/dummy/chats_dummy.dart';
 import 'package:my_chat/page/camera_page.dart';
 import 'package:my_chat/page/chat_page.dart';
 
@@ -30,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF075E54),
-        title: const Text('My Chat'),
+        title: Text('${myModel.name}님 반가워요!'),
         actions: [
           IconButton(
             onPressed: () {},

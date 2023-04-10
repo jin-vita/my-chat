@@ -21,6 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
         itemCount: chatModels.length,
         itemBuilder: (context, index) => InkWell(
           onTap: () {
+            myModel = chatModels[index];
+            chatModels.removeAt(index);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(

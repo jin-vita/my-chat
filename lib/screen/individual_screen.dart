@@ -22,12 +22,12 @@ class IndividualScreen extends StatefulWidget {
 class _IndividualScreenState extends State<IndividualScreen> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final List<MessageModel> messages = [];
-  late final IO.Socket socket;
+  late IO.Socket socket;
   bool isSendButton = false;
 
   @override
   void dispose() {
-    socket.disconnect();
+    socket.dispose();
     super.dispose();
   }
 
@@ -39,15 +39,18 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
 
   connect() {
     socket = IO.io(
-        'http://10.1.19.2:5000',
-        IO.OptionBuilder()
-            .setTransports(['websocket']) // for Flutter or Dart VM
-            .disableAutoConnect() // disable auto-connection
-            .setExtraHeaders({'foo': 'bar'}) // optional
-            .build());
+      'http://10.1.19.2:5000',
+      IO.OptionBuilder()
+          .setTransports(['websocket']) // for Flutter or Dart VM
+          .disableAutoConnect() // disable auto-connection
+          .setExtraHeaders({'foo': 'bar'}) // optional
+          .build(),
+    );
     socket.connect();
     socket.emit('sign-in', widget.chatModel.id);
-    socket.onConnect((data) => log('socket connected'));
+    socket.onConnect(
+      (data) => log('socket connected ${widget.chatModel.id}'),
+    );
     socket.on(
       'message',
       (message) => log('message: $message'),
@@ -149,7 +152,9 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
           children: [
             ListView.builder(
               itemCount: messages.length,
-              itemBuilder: (context, index) {},
+              itemBuilder: (context, index) {
+                return null;
+              },
             ),
             // ListView(
             //   children: const [
@@ -255,7 +260,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
                 ? IconButton(
                     icon: const Icon(Icons.send),
                     onPressed: () {
-                      sendMessage('dd', 'dd', _controller.text);
+                      sendMessage('dd', widget.chatModel.id, _controller.text);
                     },
                   )
                 : IconButton(

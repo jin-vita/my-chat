@@ -20,10 +20,35 @@ class ChatPage extends StatelessWidget {
         child: const Icon(Icons.chat),
       ),
       body: ListView.builder(
-        itemCount: chats.length,
-        itemBuilder: (context, index) => CustomCard(
-          chatModel: chats[index],
-        ),
+        itemCount: chatModels.length + 1,
+        itemBuilder: (context, index) => index == 0
+            ? Column(
+                children: [
+                  const SizedBox(height: 10),
+                  const Text(
+                    '나와의 채팅',
+                    style: TextStyle(
+                      color: Color(0xFF075E54),
+                    ),
+                  ),
+                  const Divider(
+                    thickness: 1,
+                  ),
+                  CustomCard(chatModel: myModel),
+                  const Text(
+                    '채팅 리스트',
+                    style: TextStyle(
+                      color: Color(0xFF075E54),
+                    ),
+                  ),
+                  const Divider(
+                    thickness: 1,
+                  ),
+                ],
+              )
+            : CustomCard(
+                chatModel: chatModels[index - 1],
+              ),
       ),
     );
   }
