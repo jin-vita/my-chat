@@ -6,8 +6,10 @@ class ChatModel {
   String? time;
   bool? isGroup;
   bool selected;
+  String id;
 
   ChatModel({
+    required this.id,
     required this.name,
     this.icon = 'person.svg',
     this.status = 'developer',

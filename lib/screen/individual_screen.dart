@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_chat/model/chat_model.dart';
 import 'package:my_chat/ui/message_card.dart';
 import 'package:my_chat/ui/reply_card.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class IndividualScreen extends StatefulWidget {
   const IndividualScreen({
@@ -19,6 +22,27 @@ class IndividualScreen extends StatefulWidget {
 
 class _IndividualScreenState extends State<IndividualScreen> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
+  late final IO.Socket socket;
+  bool isSendButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+    connect();
+  }
+
+  connect() {
+    socket = IO.io(
+        'http://10.1.19.2:5000',
+        IO.OptionBuilder()
+            .setTransports(['websocket']) // for Flutter or Dart VM
+            .disableAutoConnect() // disable auto-connection
+            .setExtraHeaders({'foo': 'bar'}) // optional
+            .build());
+    socket.connect();
+    socket.emit('/test', 'hello world');
+    socket.onConnect((data) => log('socket connected'));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +179,9 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
                 borderRadius: BorderRadius.circular(25),
               ),
               child: TextFormField(
+                onChanged: (value) => setState(() {
+                  isSendButton = value.isNotEmpty;
+                }),
                 controller: _controller,
                 textAlignVertical: TextAlignVertical.center,
                 keyboardType: TextInputType.multiline,
@@ -198,10 +225,15 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
           CircleAvatar(
             backgroundColor: const Color(0xFF128C7E),
             radius: 25,
-            child: IconButton(
-              icon: const Icon(Icons.mic),
-              onPressed: () {},
-            ),
+            child: isSendButton
+                ? IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: () {},
+                  )
+                : IconButton(
+                    icon: const Icon(Icons.mic),
+                    onPressed: () {},
+                  ),
           ),
         ],
       ),

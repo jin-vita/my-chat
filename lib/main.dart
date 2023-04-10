@@ -1,11 +1,12 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:my_chat/screen/camera_screen.dart';
-import 'package:my_chat/screen/home_screen.dart';
+import 'package:my_chat/screen/login_screen.dart';
 
 // flutter pub add camera
 // flutter pub add flutter_svg
 // flutter pub add video_player
+// flutter pub add socket_io_client
 // flutter pub add shared_preferences
 // flutter pub add emoji_picker_flutter
 Future<void> main() async {
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'OpenSans',
       ),
-      home: const HomeScreen(),
+      home: const LoginScreen(),
     );
   }
 }
