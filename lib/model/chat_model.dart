@@ -7,6 +7,7 @@ class ChatModel {
   bool? isGroup;
   bool selected;
   String id;
+  int unchecked;
 
   ChatModel({
     required this.id,
@@ -17,5 +18,6 @@ class ChatModel {
     this.time,
     this.isGroup,
     this.selected = false,
+    this.unchecked = 0,
   });
 }

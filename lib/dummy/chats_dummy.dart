@@ -1,6 +1,6 @@
 import 'package:my_chat/model/chat_model.dart';
 
-late final ChatModel myModel;
+late ChatModel myModel;
 
 List<ChatModel> chatModels = [
   ChatModel(
@@ -10,6 +10,7 @@ List<ChatModel> chatModels = [
     currentMessage: 'Hi you',
     time: '4:02',
     isGroup: false,
+    unchecked: 4,
   ),
   ChatModel(
     id: 'bb',
@@ -17,6 +18,15 @@ List<ChatModel> chatModels = [
     icon: 'person.svg',
     currentMessage: 'What are you doing?',
     time: '16:48',
+    isGroup: false,
+    unchecked: 2,
+  ),
+  ChatModel(
+    id: 'cc',
+    name: 'Yun',
+    icon: 'person.svg',
+    currentMessage: 'How?',
+    time: '10:17',
     isGroup: false,
   ),
   ChatModel(
@@ -26,6 +36,7 @@ List<ChatModel> chatModels = [
     currentMessage: 'What a good weather!',
     time: '10:17',
     isGroup: false,
+    unchecked: 1,
   ),
 ];
 

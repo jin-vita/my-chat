@@ -15,13 +15,20 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Who are you?'),
+        title: const Text(
+          'LOG - IN',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: ListView.builder(
         itemCount: chatModels.length,
         itemBuilder: (context, index) => InkWell(
           onTap: () {
             myModel = chatModels[index];
+            myModel.unchecked = 0;
             chatModels.removeAt(index);
             Navigator.pushReplacement(
               context,

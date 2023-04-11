@@ -78,7 +78,7 @@ class CustomCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '6',
+                  '${chatModel.unchecked == 0 ? '' : chatModel.unchecked}',
                   style: TextStyle(
                     color: Colors.white,
                     shadows: shadows,

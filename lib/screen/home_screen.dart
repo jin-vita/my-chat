@@ -1,9 +1,11 @@
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:my_chat/dummy/chats_dummy.dart';
+import 'package:my_chat/main.dart';
 import 'package:my_chat/page/camera_page.dart';
 import 'package:my_chat/page/chat_page.dart';
+import 'package:my_chat/screen/login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -38,7 +40,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             icon: const Icon(Icons.search),
           ),
           PopupMenuButton(onSelected: (value) {
-            log('PopupMenuItem : $value');
+            logger.i('PopupMenuItem : $value');
+            if (value == 'logout') {
+              myModel.unchecked = Random().nextInt(3);
+              chatModels.add(myModel);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (builder) => const LoginScreen(),
+                ),
+              );
+            }
           }, itemBuilder: (BuildContext context) {
             return [
               const PopupMenuItem(
@@ -54,12 +66,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 child: Text('Whatsapp Web'),
               ),
               const PopupMenuItem(
-                value: 'starred messages',
-                child: Text('Starred Messages'),
-              ),
-              const PopupMenuItem(
                 value: 'settings',
                 child: Text('Settings'),
+              ),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Text('LogOut'),
               ),
             ];
           }),
