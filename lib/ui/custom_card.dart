@@ -13,6 +13,18 @@ class CustomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<Shadow> shadows = [];
+    for (int i = 1; i < 9; i++) {
+      for (int j = 0; j < i; j++) {
+        shadows.add(
+          Shadow(
+            color: Colors.deepOrange,
+            blurRadius: i.toDouble(),
+          ),
+        );
+      }
+    }
+
     return Column(
       children: [
         InkWell(
@@ -47,7 +59,12 @@ class CustomCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text('${chatModel.time}'),
+                Text(
+                  '${chatModel.time}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
             subtitle: Row(
@@ -60,7 +77,13 @@ class CustomCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const Text('1'),
+                Text(
+                  '6',
+                  style: TextStyle(
+                    color: Colors.white,
+                    shadows: shadows,
+                  ),
+                ),
               ],
             ),
             // trailing: Text('${chatModel.time}'),

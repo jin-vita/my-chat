@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_chat/dummy/chats_dummy.dart';
 import 'package:my_chat/model/chat_model.dart';
 import 'package:my_chat/model/message_model.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -47,9 +48,11 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
           .build(),
     );
     socket.connect();
-    socket.emit('sign-in', widget.chatModel.id);
+    socket.emit('sign-in', myModel.id);
     socket.onConnect(
-      (data) => log('socket connected ${widget.chatModel.id}'),
+      (data) {
+        log('socket connected ${myModel.id}');
+      },
     );
     socket.on(
       'message',
@@ -261,6 +264,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
                     icon: const Icon(Icons.send),
                     onPressed: () {
                       sendMessage('dd', widget.chatModel.id, _controller.text);
+                      _controller.text = '';
                     },
                   )
                 : IconButton(
