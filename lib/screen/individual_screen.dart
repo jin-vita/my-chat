@@ -102,13 +102,14 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
       message: message,
       time: time,
     );
+    scrollToBot();
     setState(() {
       messages.add(newMessage);
     });
-    scrollToBot();
   }
 
   scrollToBot() {
+    // _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
       duration: const Duration(milliseconds: 300),
@@ -189,34 +190,30 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     );
   }
 
-  SizedBox _body(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      child: WillPopScope(
-        onWillPop: () => _backAction(context),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  return messages[index].from == myModel.id
-                      ? MessageCard(
-                          message: messages[index].message,
-                          time: messages[index].time,
-                        )
-                      : ReplyCard(
-                          message: messages[index].message,
-                          time: messages[index].time,
-                        );
-                },
-              ),
+  _body(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () => _backAction(context),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                return messages[index].from == myModel.id
+                    ? MessageCard(
+                        message: messages[index].message,
+                        time: messages[index].time,
+                      )
+                    : ReplyCard(
+                        message: messages[index].message,
+                        time: messages[index].time,
+                      );
+              },
             ),
-            _typingBar(context),
-          ],
-        ),
+          ),
+          _typingBar(context),
+        ],
       ),
     );
   }
