@@ -111,6 +111,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     return Stack(children: [
       Image.asset(
         'assets/images/chat_back.png',
+        width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         fit: BoxFit.cover,
       ),
