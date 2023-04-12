@@ -24,7 +24,6 @@ class IndividualScreen extends StatefulWidget {
 
 class _IndividualScreenState extends State<IndividualScreen> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
   List<MessageModel> messages = [];
   late IO.Socket socket;
   bool _isSendButton = false;
@@ -102,19 +101,9 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
       message: message,
       time: time,
     );
-    scrollToBot();
     setState(() {
-      messages.add(newMessage);
+      messages.insert(0, newMessage);
     });
-  }
-
-  scrollToBot() {
-    // _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
   }
 
   @override
@@ -197,7 +186,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
         children: [
           Expanded(
             child: ListView.builder(
-              controller: _scrollController,
+              reverse: true,
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 return messages[index].from == myModel.id
