@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:my_chat/screen/camera_screen.dart';
 import 'package:my_chat/screen/login_screen.dart';
 
+// flutter pub add intl
 // flutter pub add logger
 // flutter pub add camera
 // flutter pub add flutter_svg

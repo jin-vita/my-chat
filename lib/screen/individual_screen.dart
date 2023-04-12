@@ -1,10 +1,13 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:my_chat/dummy/chats_dummy.dart';
 import 'package:my_chat/main.dart';
 import 'package:my_chat/model/chat_model.dart';
 import 'package:my_chat/model/message_model.dart';
+import 'package:my_chat/ui/message_card.dart';
+import 'package:my_chat/ui/reply_card.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class IndividualScreen extends StatefulWidget {
@@ -21,9 +24,10 @@ class IndividualScreen extends StatefulWidget {
 
 class _IndividualScreenState extends State<IndividualScreen> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
-  final List<MessageModel> messages = [];
+  final ScrollController _scrollController = ScrollController();
+  List<MessageModel> messages = [];
   late IO.Socket socket;
-  bool isSendButton = false;
+  bool _isSendButton = false;
 
   @override
   void dispose() {
@@ -39,7 +43,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
 
   connect() {
     socket = IO.io(
-      'http://10.1.19.2:5000',
+      'http://192.168.43.234:5000',
       IO.OptionBuilder()
           .setTransports(['websocket']) // for Flutter or Dart VM
           .disableAutoConnect() // disable auto-connection
@@ -55,20 +59,61 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     );
     socket.on(
       'message',
-      (message) => logger.d('message: $message'),
+      (message) {
+        // message: {from: dd, too: cc, message: aaa}
+        // 접속자가 too 일 때 메시지 받음.
+        logger.d('message: $message');
+        setMessage(
+          from: message['from'],
+          too: message['too'],
+          message: message['message'],
+        );
+      },
     );
   }
 
-  sendMessage(
-    String myId,
-    String targetId,
-    String message,
-  ) {
+  sendMessage({
+    required String from,
+    required String too,
+    required String message,
+  }) {
+    setMessage(
+      from: from,
+      too: too,
+      message: message,
+    );
+    if (from == too) return;
     socket.emit('message', {
-      'myId': myId,
-      'targetId': targetId,
+      'from': from,
+      'too': too,
       'message': message,
     });
+  }
+
+  setMessage({
+    required String from,
+    required String too,
+    required String message,
+  }) {
+    String time = DateFormat('HH:mm').format(DateTime.now());
+    final MessageModel newMessage = MessageModel(
+      from: from,
+      too: too,
+      message: message,
+      time: time,
+    );
+    setState(() {
+      messages.add(newMessage);
+    });
+    scrollToBot();
+  }
+
+  scrollToBot() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -150,40 +195,25 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
       width: MediaQuery.of(context).size.width,
       child: WillPopScope(
         onWillPop: () => _backAction(context),
-        child: Stack(
+        child: Column(
           children: [
-            ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                return null;
-              },
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  return messages[index].from == myModel.id
+                      ? MessageCard(
+                          message: messages[index].message,
+                          time: messages[index].time,
+                        )
+                      : ReplyCard(
+                          message: messages[index].message,
+                          time: messages[index].time,
+                        );
+                },
+              ),
             ),
-            // ListView(
-            //   children: const [
-            //     MessageCard(
-            //       time: '08:20',
-            //       message: '좋은 아침!',
-            //     ),
-            //     ReplyCard(
-            //       time: '09:47',
-            //       message: '응ㅋㅋ 그래',
-            //     ),
-            //     MessageCard(
-            //       time: '09:51',
-            //       message: '오늘 기분은 어때? 밥은 먹었어? 뭐 먹었어?',
-            //     ),
-            //     ReplyCard(
-            //       time: '12:08',
-            //       message: '음.. 왜?',
-            //     ),
-            //     MessageCard(
-            //       time: '12:11',
-            //       message:
-            //           '그냥 너가 잠을 푹 잘 잤는지,\n밥을 잘 먹었는지, 기분은 좋은지,\n오늘도 그 전에 연락준 3일 전처럼 크게 아픈 곳 없이 건강한지 궁금해서 ~',
-            //       isRead: false,
-            //     ),
-            //   ],
-            // ),
             _typingBar(context),
           ],
         ),
@@ -213,7 +243,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
               ),
               child: TextFormField(
                 onChanged: (value) => setState(() {
-                  isSendButton = value.isNotEmpty;
+                  _isSendButton = value.isNotEmpty;
                 }),
                 controller: _controller,
                 textAlignVertical: TextAlignVertical.center,
@@ -258,12 +288,17 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
           CircleAvatar(
             backgroundColor: const Color(0xFF128C7E),
             radius: 25,
-            child: isSendButton
+            child: _isSendButton
                 ? IconButton(
                     icon: const Icon(Icons.send),
                     onPressed: () {
-                      sendMessage('dd', widget.chatModel.id, _controller.text);
-                      _controller.text = '';
+                      sendMessage(
+                        from: myModel.id,
+                        too: widget.chatModel.id,
+                        message: _controller.text,
+                      );
+                      _controller.clear();
+                      _isSendButton = false;
                     },
                   )
                 : IconButton(
