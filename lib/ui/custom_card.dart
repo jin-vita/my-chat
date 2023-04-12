@@ -13,18 +13,6 @@ class CustomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Shadow> shadows = [];
-    for (int i = 1; i < 9; i++) {
-      for (int j = 0; j < i; j++) {
-        shadows.add(
-          Shadow(
-            color: Colors.deepOrange,
-            blurRadius: i.toDouble(),
-          ),
-        );
-      }
-    }
-
     return Column(
       children: [
         InkWell(
@@ -77,13 +65,59 @@ class CustomCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  '${chatModel.unchecked == 0 ? '' : chatModel.unchecked}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    shadows: shadows,
+                Stack(children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Icon(
+                      Icons.circle,
+                      color: chatModel.unchecked == 0 ? Colors.transparent : Colors.deepOrange,
+                    ),
                   ),
-                ),
+                  Positioned(
+                    right: 4,
+                    child: Icon(
+                      Icons.circle,
+                      color: chatModel.unchecked < 10 ? Colors.transparent : Colors.deepOrange,
+                    ),
+                  ),
+                  Positioned(
+                    right: 8,
+                    child: Icon(
+                      Icons.circle,
+                      color: chatModel.unchecked < 100 ? Colors.transparent : Colors.deepOrange,
+                    ),
+                  ),
+                  Positioned(
+                    right: 12,
+                    child: Icon(
+                      Icons.circle,
+                      color: chatModel.unchecked < 300 ? Colors.transparent : Colors.deepOrange,
+                    ),
+                  ),
+                  Positioned(
+                    right: 16,
+                    child: Icon(
+                      Icons.circle,
+                      color: chatModel.unchecked < 300 ? Colors.transparent : Colors.deepOrange,
+                    ),
+                  ),
+                  Positioned(
+                    right: chatModel.unchecked < 10
+                        ? 8
+                        : chatModel.unchecked < 100
+                            ? 6.5
+                            : 4.2,
+                    bottom: 3,
+                    child: Text(
+                      '${chatModel.unchecked == 0 ? '' : chatModel.unchecked < 300 ? chatModel.unchecked : '300+'}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ]),
               ],
             ),
             // trailing: Text('${chatModel.time}'),

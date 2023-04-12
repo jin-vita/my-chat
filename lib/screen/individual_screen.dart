@@ -24,7 +24,9 @@ class IndividualScreen extends StatefulWidget {
 
 class _IndividualScreenState extends State<IndividualScreen> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _sController = ScrollController();
   List<MessageModel> messages = [];
+  List<String> msg = [];
   late IO.Socket socket;
   bool _isSendButton = false;
 
@@ -42,7 +44,8 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
 
   connect() {
     socket = IO.io(
-      'http://192.168.43.234:5000',
+      // 'http://192.168.43.234:5000',
+      'http://10.1.19.2:5000',
       IO.OptionBuilder()
           .setTransports(['websocket']) // for Flutter or Dart VM
           .disableAutoConnect() // disable auto-connection
@@ -58,11 +61,12 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     );
     socket.on(
       'message',
-      (message) {
+      (dynamic message) {
         // message: {from: dd, too: cc, message: aaa}
         // 접속자가 too 일 때 메시지 받음.
         logger.d('message: $message');
-        setMessage(
+        // setMessage(message: message);
+        setMessage2(
           from: message['from'],
           too: message['too'],
           message: message['message'],
@@ -76,20 +80,31 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     required String too,
     required String message,
   }) {
-    setMessage(
+    String time = DateFormat('HH:mm').format(DateTime.now());
+    setMessage2(
       from: from,
       too: too,
       message: message,
     );
+    // setMessage(message: '{from: $from, too: $too, message: $message, time: $time}',);
     if (from == too) return;
     socket.emit('message', {
       'from': from,
       'too': too,
       'message': message,
+      'time': time,
     });
   }
 
   setMessage({
+    required String message,
+  }) {
+    setState(() {
+      msg.insert(0, message);
+    });
+  }
+
+  setMessage2({
     required String from,
     required String too,
     required String message,
@@ -104,6 +119,15 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     setState(() {
       messages.insert(0, newMessage);
     });
+    scrollToBot();
+  }
+
+  scrollToBot() {
+    _sController.animateTo(
+      _sController.position.minScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -187,6 +211,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _sController,
               reverse: true,
               itemCount: messages.length,
               itemBuilder: (context, index) {

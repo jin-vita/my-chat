@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           PopupMenuButton(onSelected: (value) {
             logger.i('PopupMenuItem : $value');
             if (value == 'logout') {
-              myModel.unchecked = Random().nextInt(3);
+              myModel.unchecked = Random().nextInt(400);
               chatModels.add(myModel);
               Navigator.pushReplacement(
                 context,
