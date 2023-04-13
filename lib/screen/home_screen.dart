@@ -41,15 +41,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
           PopupMenuButton(onSelected: (value) {
             logger.i('PopupMenuItem : $value');
-            if (value == 'logout') {
-              myModel.unchecked = Random().nextInt(400);
-              chatModels.add(myModel);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (builder) => const LoginScreen(),
-                ),
-              );
+            switch (value) {
+              case 'new group':
+              case 'new broadcast':
+              case 'settings':
+                break;
+              case 'clear pref':
+                pref.clear();
+                break;
+              case 'logout':
+                myModel.unchecked = Random().nextInt(400);
+                chatModels.add(myModel);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (builder) => const LoginScreen(),
+                  ),
+                );
+                break;
             }
           }, itemBuilder: (BuildContext context) {
             return [
@@ -62,8 +71,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 child: Text('New BroadCast'),
               ),
               const PopupMenuItem(
-                value: 'whatsapp web',
-                child: Text('Whatsapp Web'),
+                value: 'clear pref',
+                child: Text('Clear Pref'),
               ),
               const PopupMenuItem(
                 value: 'settings',

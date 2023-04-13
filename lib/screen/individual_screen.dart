@@ -44,7 +44,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
   }
 
   setMessageList() {
-    messages = pref.getStringList(widget.chatModel.id) ?? [];
+    messages = pref.getStringList('${myModel.id}_${widget.chatModel.id}') ?? [];
   }
 
   connect() {
@@ -67,30 +67,39 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     socket.on(
       'message',
       (dynamic message) {
-        // message: {from: dd, too: cc, message: aaa}
-        // 접속자가 too 일 때 메시지 받음.
+        // message: {from: dd, to: cc, message: aaa}
+        // 접속자가 to 일 때 메시지 받음.
         logger.d('message: $message');
         setMessage(message: message);
+      },
+    );
+    socket.on(
+      'check',
+      (dynamic message) {
+        // message: {from: dd, to: cc, message: aaa}
+        // 접속자가 to 일 때 메시지 받음.
+        logger.d('check: $message');
+        checkMessage(message: message);
       },
     );
   }
 
   sendMessage({
     required String from,
-    required String too,
+    required String to,
     required String message,
   }) {
     String time = DateFormat('HH:mm').format(DateTime.now());
 
     final messageForm = {
       'from': from,
-      'too': too,
+      'to': to,
       'message': message,
       'time': time,
     };
 
     setMessage(message: messageForm);
-    if (from == too) return;
+    if (from == to) return;
     socket.emit('message', messageForm);
   }
 
@@ -101,7 +110,24 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
       messages.insert(0, jsonEncode(message));
       if (messages.length > 100) messages.removeLast();
     });
-    pref.setStringList(widget.chatModel.id, messages);
+    pref.setStringList(
+      '${myModel.id}_${widget.chatModel.id}',
+      messages,
+    );
+    scrollToBot();
+  }
+
+  checkMessage({
+    required dynamic message,
+  }) {
+    final messageForm = jsonEncode(message);
+    setState(() {
+      if (messages.length > 100) messages.removeLast();
+    });
+    pref.setStringList(
+      '${myModel.id}_${widget.chatModel.id}',
+      messages,
+    );
     scrollToBot();
   }
 
@@ -290,7 +316,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
                     onPressed: () {
                       sendMessage(
                         from: myModel.id,
-                        too: widget.chatModel.id,
+                        to: widget.chatModel.id,
                         message: _controller.text,
                       );
                       _controller.clear();
