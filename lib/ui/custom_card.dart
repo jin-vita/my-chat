@@ -107,7 +107,7 @@ class CustomCard extends StatelessWidget {
                         : chatModel.unchecked < 100
                             ? 6.5
                             : 4.2,
-                    bottom: 3,
+                    bottom: 3.5,
                     child: Text(
                       '${chatModel.unchecked == 0 ? '' : chatModel.unchecked < 300 ? chatModel.unchecked : '300+'}',
                       style: const TextStyle(
