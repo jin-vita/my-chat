@@ -1,6 +1,9 @@
 import 'package:my_chat/model/chat_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 late ChatModel myModel;
+
+late SharedPreferences pref;
 
 List<ChatModel> chatModels = [
   ChatModel(

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:my_chat/screen/camera_screen.dart';
 import 'package:my_chat/screen/login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'dummy/chats_dummy.dart';
 
 // flutter pub add intl
 // flutter pub add logger
@@ -17,6 +20,7 @@ final logger = Logger();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  pref = await SharedPreferences.getInstance();
   cameras = await availableCameras();
   runApp(const MyApp());
 }

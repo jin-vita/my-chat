@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:my_chat/dummy/chats_dummy.dart';
 import 'package:my_chat/main.dart';
 import 'package:my_chat/model/chat_model.dart';
-import 'package:my_chat/model/message_model.dart';
 import 'package:my_chat/ui/message_card.dart';
 import 'package:my_chat/ui/reply_card.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -25,8 +26,7 @@ class IndividualScreen extends StatefulWidget {
 class _IndividualScreenState extends State<IndividualScreen> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _sController = ScrollController();
-  List<MessageModel> messages = [];
-  List<String> msg = [];
+  List<String> messages = [];
   late IO.Socket socket;
   bool _isSendButton = false;
 
@@ -39,7 +39,12 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
   @override
   void initState() {
     super.initState();
+    setMessageList();
     connect();
+  }
+
+  setMessageList() {
+    messages = pref.getStringList(widget.chatModel.id) ?? [];
   }
 
   connect() {
@@ -65,12 +70,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
         // message: {from: dd, too: cc, message: aaa}
         // 접속자가 too 일 때 메시지 받음.
         logger.d('message: $message');
-        // setMessage(message: message);
-        setMessage2(
-          from: message['from'],
-          too: message['too'],
-          message: message['message'],
-        );
+        setMessage(message: message);
       },
     );
   }
@@ -81,44 +81,27 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     required String message,
   }) {
     String time = DateFormat('HH:mm').format(DateTime.now());
-    setMessage2(
-      from: from,
-      too: too,
-      message: message,
-    );
-    // setMessage(message: '{from: $from, too: $too, message: $message, time: $time}',);
-    if (from == too) return;
-    socket.emit('message', {
+
+    final messageForm = {
       'from': from,
       'too': too,
       'message': message,
       'time': time,
-    });
+    };
+
+    setMessage(message: messageForm);
+    if (from == too) return;
+    socket.emit('message', messageForm);
   }
 
   setMessage({
-    required String message,
+    required dynamic message,
   }) {
     setState(() {
-      msg.insert(0, message);
+      messages.insert(0, jsonEncode(message));
+      if (messages.length > 100) messages.removeLast();
     });
-  }
-
-  setMessage2({
-    required String from,
-    required String too,
-    required String message,
-  }) {
-    String time = DateFormat('HH:mm').format(DateTime.now());
-    final MessageModel newMessage = MessageModel(
-      from: from,
-      too: too,
-      message: message,
-      time: time,
-    );
-    setState(() {
-      messages.insert(0, newMessage);
-    });
+    pref.setStringList(widget.chatModel.id, messages);
     scrollToBot();
   }
 
@@ -215,14 +198,15 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
               reverse: true,
               itemCount: messages.length,
               itemBuilder: (context, index) {
-                return messages[index].from == myModel.id
+                final message = jsonDecode(messages[index]);
+                return message['from'] == myModel.id
                     ? MessageCard(
-                        message: messages[index].message,
-                        time: messages[index].time,
+                        message: message['message'],
+                        time: message['time'],
                       )
                     : ReplyCard(
-                        message: messages[index].message,
-                        time: messages[index].time,
+                        message: message['message'],
+                        time: message['time'],
                       );
               },
             ),
