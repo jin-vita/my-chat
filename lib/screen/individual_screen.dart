@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:my_chat/dummy/chats_dummy.dart';
 import 'package:my_chat/main.dart';
 import 'package:my_chat/model/chat_model.dart';
+import 'package:my_chat/model/message_model.dart';
 import 'package:my_chat/ui/message_card.dart';
 import 'package:my_chat/ui/reply_card.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -26,7 +28,8 @@ class IndividualScreen extends StatefulWidget {
 class _IndividualScreenState extends State<IndividualScreen> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _sController = ScrollController();
-  List<String> messages = [];
+  List<String> stringMessages = [];
+  List<MessageModel> messages = [];
   late IO.Socket socket;
   bool _isSendButton = false;
 
@@ -44,7 +47,8 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
   }
 
   setMessageList() {
-    messages = pref.getStringList('${myModel.id}_${widget.chatModel.id}') ?? [];
+    stringMessages = pref.getStringList('${myModel.id}_${widget.chatModel.id}') ?? [];
+    setMessageModels();
   }
 
   connect() {
@@ -89,13 +93,16 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     required String to,
     required String message,
   }) {
-    String time = DateFormat('HH:mm').format(DateTime.now());
+    int randomNumber = Random().nextInt(100000);
+    String randomString = randomNumber.toString().padLeft(5, '0');
+    String time = DateFormat('yyyy년 MM월 dd일|HH:mm|ssSSS').format(DateTime.now()) + randomString;
 
     final messageForm = {
       'from': from,
       'to': to,
       'message': message,
       'time': time,
+      'network': 'PENDING',
     };
 
     setMessage(message: messageForm);
@@ -106,29 +113,36 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
   setMessage({
     required dynamic message,
   }) {
-    setState(() {
-      messages.insert(0, jsonEncode(message));
-      if (messages.length > 100) messages.removeLast();
-    });
+    stringMessages.insert(0, jsonEncode(message));
+    if (stringMessages.length > 100) stringMessages.removeLast();
     pref.setStringList(
       '${myModel.id}_${widget.chatModel.id}',
-      messages,
+      stringMessages,
     );
+    setState(() {
+      setMessageModels();
+    });
     scrollToBot();
+  }
+
+  setMessageModels() {
+    for (var item in stringMessages) {
+      final MessageModel message = MessageModel.fromJson(jsonDecode(item));
+      messages.add(message);
+    }
   }
 
   checkMessage({
     required dynamic message,
   }) {
-    final messageForm = jsonEncode(message);
-    setState(() {
-      if (messages.length > 100) messages.removeLast();
-    });
-    pref.setStringList(
-      '${myModel.id}_${widget.chatModel.id}',
-      messages,
-    );
-    scrollToBot();
+    // setState(() {
+    //   if (stringMessages.length > 100) stringMessages.removeLast();
+    // });
+    // pref.setStringList(
+    //   '${myModel.id}_${widget.chatModel.id}',
+    //   stringMessages,
+    // );
+    // scrollToBot();
   }
 
   scrollToBot() {
@@ -224,15 +238,16 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
               reverse: true,
               itemCount: messages.length,
               itemBuilder: (context, index) {
-                final message = jsonDecode(messages[index]);
-                return message['from'] == myModel.id
+                final message = messages[index];
+                final time = message.time.split('|')[1];
+                return message.from == myModel.id
                     ? MessageCard(
-                        message: message['message'],
-                        time: message['time'],
+                        message: message.message,
+                        time: time,
                       )
                     : ReplyCard(
-                        message: message['message'],
-                        time: message['time'],
+                        message: message.message,
+                        time: time,
                       );
               },
             ),
