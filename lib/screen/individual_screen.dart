@@ -247,7 +247,6 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
-                final time = message.time.split('|')[1];
                 return message.from == myModel.id
                     ? MessageCard(message: message)
                     : ReplyCard(message: message);
