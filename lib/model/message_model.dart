@@ -4,6 +4,7 @@ class MessageModel {
   String message;
   String time;
   String network;
+  bool isRead;
 
   MessageModel({
     required this.from,
@@ -11,6 +12,7 @@ class MessageModel {
     required this.message,
     required this.time,
     required this.network,
+    required this.isRead,
   });
 
   MessageModel.fromJson(Map<String, dynamic> json)
@@ -18,7 +20,8 @@ class MessageModel {
         to = json['to'],
         message = json['message'],
         time = json['time'],
-        network = json['network'];
+        network = json['network'],
+        isRead = json['isRead'];
 
   Map<String, dynamic> toJson() => {
         'from': from,
@@ -26,5 +29,6 @@ class MessageModel {
         'message': message,
         'time': time,
         'network': network,
+        'isRead': isRead,
       };
 }

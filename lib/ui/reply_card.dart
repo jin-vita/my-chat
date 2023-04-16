@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:my_chat/model/message_model.dart';
 
 class ReplyCard extends StatelessWidget {
   const ReplyCard({
     Key? key,
     required this.message,
-    required this.time,
-    this.isRead = true,
   }) : super(key: key);
-  final String message;
-  final String time;
-  final bool isRead;
+  final MessageModel message;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +33,7 @@ class ReplyCard extends StatelessWidget {
                   vertical: 8,
                 ),
                 child: Text(
-                  message,
+                  message.message,
                   style: const TextStyle(
                     fontSize: 16,
                   ),
@@ -53,7 +50,7 @@ class ReplyCard extends StatelessWidget {
                       Transform.translate(
                         offset: const Offset(0, 3),
                         child: Text(
-                          isRead ? '' : '1',
+                          message.isRead ? '' : '1',
                           style: const TextStyle(
                             fontSize: 10,
                             color: Colors.yellow,
@@ -79,7 +76,7 @@ class ReplyCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        time,
+                        message.time.split('|')[1],
                         style: const TextStyle(
                           fontSize: 10,
                           color: Colors.black,

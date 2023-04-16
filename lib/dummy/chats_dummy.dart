@@ -1,9 +1,11 @@
 import 'package:my_chat/model/chat_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 late ChatModel myModel;
 
 late SharedPreferences pref;
+late IO.Socket socket;
 
 List<ChatModel> chatModels = [
   ChatModel(

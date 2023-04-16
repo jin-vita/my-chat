@@ -11,7 +11,6 @@ import 'package:my_chat/model/chat_model.dart';
 import 'package:my_chat/model/message_model.dart';
 import 'package:my_chat/ui/message_card.dart';
 import 'package:my_chat/ui/reply_card.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class IndividualScreen extends StatefulWidget {
   const IndividualScreen({
@@ -30,7 +29,6 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
   final ScrollController _sController = ScrollController();
   List<String> stringMessages = [];
   List<MessageModel> messages = [];
-  late IO.Socket socket;
   bool _isSendButton = false;
 
   @override
@@ -52,22 +50,22 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
   }
 
   connect() {
-    socket = IO.io(
-      // 'http://192.168.43.234:5000',
-      'http://10.1.19.2:5000',
-      IO.OptionBuilder()
-          .setTransports(['websocket']) // for Flutter or Dart VM
-          .disableAutoConnect() // disable auto-connection
-          .setExtraHeaders({'foo': 'bar'}) // optional
-          .build(),
-    );
-    socket.connect();
-    socket.emit('sign-in', myModel.id);
-    socket.onConnect(
-      (data) {
-        logger.d('socket connected ${myModel.id}');
-      },
-    );
+    // socket = IO.io(
+    //   // 'http://192.168.43.234:5000',
+    //   'http://10.1.19.2:5000',
+    //   IO.OptionBuilder()
+    //       .setTransports(['websocket']) // for Flutter or Dart VM
+    //       .disableAutoConnect() // disable auto-connection
+    //       .setExtraHeaders({'foo': 'bar'}) // optional
+    //       .build(),
+    // );
+    // socket.connect();
+    // socket.emit('sign-in', myModel.id);
+    // socket.onConnect(
+    //   (data) {
+    //     logger.d('socket connected ${myModel.id}');
+    //   },
+    // );
     socket.on(
       'message',
       (dynamic message) {
@@ -103,10 +101,10 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
       'message': message,
       'time': time,
       'network': 'PENDING',
+      'isRead': false,
     };
 
     setMessage(message: messageForm);
-    if (from == to) return;
     socket.emit('message', messageForm);
   }
 
@@ -116,7 +114,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     stringMessages.insert(0, jsonEncode(message));
     if (stringMessages.length > 100) stringMessages.removeLast();
     pref.setStringList(
-      '${myModel.id}_${widget.chatModel.id}',
+      '${myModel.id}_${message['to']}',
       stringMessages,
     );
     setState(() {
@@ -126,8 +124,13 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
   }
 
   setMessageModels() {
+    messages.clear();
     for (var item in stringMessages) {
-      final MessageModel message = MessageModel.fromJson(jsonDecode(item));
+      MessageModel message = MessageModel.fromJson(jsonDecode(item));
+      if ((message.from != myModel.id || message.from == message.to) && !message.isRead) {
+        message.isRead = true;
+        socket.emit('isRead', message);
+      }
       messages.add(message);
     }
   }
@@ -135,14 +138,19 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
   checkMessage({
     required dynamic message,
   }) {
-    // setState(() {
-    //   if (stringMessages.length > 100) stringMessages.removeLast();
-    // });
-    // pref.setStringList(
-    //   '${myModel.id}_${widget.chatModel.id}',
-    //   stringMessages,
-    // );
-    // scrollToBot();
+    stringMessages.clear();
+    for (var item in messages) {
+      if (item.time == message['time']) {
+        item.network = message['network'];
+      }
+      stringMessages.add(jsonEncode(item.toJson()));
+    }
+    setState(() {
+      pref.setStringList(
+        '${myModel.id}_${message['to']}',
+        stringMessages,
+      );
+    });
   }
 
   scrollToBot() {
@@ -241,14 +249,8 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
                 final message = messages[index];
                 final time = message.time.split('|')[1];
                 return message.from == myModel.id
-                    ? MessageCard(
-                        message: message.message,
-                        time: time,
-                      )
-                    : ReplyCard(
-                        message: message.message,
-                        time: time,
-                      );
+                    ? MessageCard(message: message)
+                    : ReplyCard(message: message);
               },
             ),
           ),

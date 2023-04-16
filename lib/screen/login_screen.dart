@@ -3,14 +3,9 @@ import 'package:my_chat/dummy/chats_dummy.dart';
 import 'package:my_chat/screen/home_screen.dart';
 import 'package:my_chat/ui/button_card.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:my_chat/model/message_model.dart';
 
 class MessageCard extends StatelessWidget {
   const MessageCard({
     Key? key,
     required this.message,
-    required this.time,
-    this.isRead = true,
   }) : super(key: key);
-  final String message;
-  final String time;
-  final bool isRead;
+  final MessageModel message;
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +34,20 @@ class MessageCard extends StatelessWidget {
                   vertical: 8,
                 ),
                 child: Text(
-                  message,
+                  message.message,
                   style: const TextStyle(
                     fontSize: 16,
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                child: Transform.translate(
+                  offset: const Offset(-40, 0),
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    size: 13,
+                    color: message.network == 'PENDING' ? Colors.grey : Colors.transparent,
                   ),
                 ),
               ),
@@ -53,7 +61,7 @@ class MessageCard extends StatelessWidget {
                       Transform.translate(
                         offset: const Offset(0, 3),
                         child: Text(
-                          isRead ? '' : '1',
+                          message.isRead ? '' : '1',
                           style: const TextStyle(
                             fontSize: 10,
                             color: Colors.yellow,
@@ -79,7 +87,7 @@ class MessageCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        time,
+                        message.time.split('|')[1],
                         style: const TextStyle(
                           fontSize: 10,
                           color: Colors.black,
