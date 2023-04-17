@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -6,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:my_chat/dummy/chats_dummy.dart';
-import 'package:my_chat/main.dart';
 import 'package:my_chat/model/chat_model.dart';
 import 'package:my_chat/model/message_model.dart';
 import 'package:my_chat/ui/message_card.dart';
@@ -32,58 +32,14 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
   bool _isSendButton = false;
 
   @override
-  void dispose() {
-    socket.dispose();
-    super.dispose();
-  }
-
-  @override
   void initState() {
     super.initState();
     setMessageList();
-    connect();
   }
 
   setMessageList() {
     stringMessages = pref.getStringList('${myModel.id}_${widget.chatModel.id}') ?? [];
     setMessageModels();
-  }
-
-  connect() {
-    // socket = IO.io(
-    //   // 'http://192.168.43.234:5000',
-    //   'http://10.1.19.2:5000',
-    //   IO.OptionBuilder()
-    //       .setTransports(['websocket']) // for Flutter or Dart VM
-    //       .disableAutoConnect() // disable auto-connection
-    //       .setExtraHeaders({'foo': 'bar'}) // optional
-    //       .build(),
-    // );
-    // socket.connect();
-    // socket.emit('sign-in', myModel.id);
-    // socket.onConnect(
-    //   (data) {
-    //     logger.d('socket connected ${myModel.id}');
-    //   },
-    // );
-    socket.on(
-      'message',
-      (dynamic message) {
-        // message: {from: dd, to: cc, message: aaa}
-        // 접속자가 to 일 때 메시지 받음.
-        logger.d('message: $message');
-        setMessage(message: message);
-      },
-    );
-    socket.on(
-      'check',
-      (dynamic message) {
-        // message: {from: dd, to: cc, message: aaa}
-        // 접속자가 to 일 때 메시지 받음.
-        logger.d('check: $message');
-        checkMessage(message: message);
-      },
-    );
   }
 
   sendMessage({
@@ -105,7 +61,55 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     };
 
     setMessage(message: messageForm);
-    socket.emit('message', messageForm);
+
+    Timer(
+      const Duration(milliseconds: 500),
+      () => checkMessage(message: messageForm),
+    );
+
+    if (from != to) {
+      Timer(
+        const Duration(milliseconds: 2000),
+        () => autoReplyMessage(from: from, to: to, message: message),
+      );
+    }
+  }
+
+  autoReplyMessage({
+    required String from,
+    required String to,
+    required String message,
+  }) {
+    int randomNumber = Random().nextInt(100000);
+    String randomString = randomNumber.toString().padLeft(5, '0');
+    String time = DateFormat('yyyy년 MM월 dd일|HH:mm|ssSSS').format(DateTime.now()) + randomString;
+
+    final messageForm = {
+      'from': to,
+      'to': from,
+      'message': '$message$message~',
+      'time': time,
+      'network': 'OK',
+      'isRead': true,
+    };
+
+    stringMessages.insert(0, jsonEncode(messageForm));
+    if (stringMessages.length > 100) stringMessages.removeLast();
+    messages.clear();
+    List<String> stringMessages2 = [];
+    setState(() {
+      for (var item in stringMessages) {
+        MessageModel message = MessageModel.fromJson(jsonDecode(item));
+        message.isRead = true;
+        stringMessages2.add(jsonEncode(message.toJson()));
+        messages.add(message);
+      }
+      stringMessages = stringMessages2;
+      pref.setStringList(
+        '${from}_$to',
+        stringMessages,
+      );
+    });
   }
 
   setMessage({
@@ -114,7 +118,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     stringMessages.insert(0, jsonEncode(message));
     if (stringMessages.length > 100) stringMessages.removeLast();
     pref.setStringList(
-      '${myModel.id}_${message['to']}',
+      '${message['from']}_${message['to']}',
       stringMessages,
     );
     setState(() {
@@ -129,7 +133,6 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
       MessageModel message = MessageModel.fromJson(jsonDecode(item));
       if ((message.from != myModel.id || message.from == message.to) && !message.isRead) {
         message.isRead = true;
-        socket.emit('isRead', message);
       }
       messages.add(message);
     }
@@ -141,7 +144,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
     stringMessages.clear();
     for (var item in messages) {
       if (item.time == message['time']) {
-        item.network = message['network'];
+        item.network = 'OK';
       }
       stringMessages.add(jsonEncode(item.toJson()));
     }
