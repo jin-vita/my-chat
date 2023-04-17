@@ -62,6 +62,7 @@ class _IndividualScreenState extends State<IndividualScreen> with TickerProvider
 
     setMessage(message: messageForm);
 
+    // 자동 답장
     Timer(
       const Duration(milliseconds: 500),
       () => checkMessage(message: messageForm),
